@@ -3,27 +3,21 @@
 
 var oojs = (function( oojs ){
 
-  var createItem = function( itemHtml ){
+  var createItem = function( options ){
 
-    var el       = '',
-        itemText = '';
+    var el = '';
+
     // Need to create a new item element
-    if( typeof itemHtml !== 'object' ){
-      
-      if( typeof itemHtml === 'string'){
-
-        itemText = itemHtml;
-
-      }
+    if( typeof options.html !== 'object' ){
 
       el = $('<button>')
         .attr('type', 'button')
         .addClass('btn btn-default tool-bar-item')
-        .html( itemText );
+        .html( ( options.text ) ? options.text : 'I am a tool' );
 
     } else {
 
-      el = itemHtml;
+      el = options.html;
 
     }
 
@@ -72,7 +66,7 @@ var oojs = (function( oojs ){
     var items = [];
 
     toolbarItems.each(function(){
-      var item = createItem( $(this) );
+      var item = createItem( { html : $(this) } );
       items.push( item );
     });
 
@@ -100,9 +94,9 @@ var oojs = (function( oojs ){
         this.el.appendTo( domSpot );
       },
       // Adds another toolbar item
-      addItem : function( itemText ){
+      addItem : function( options ){
 
-        var item = createItem( itemText );
+        var item = createItem( options );
         this.el.append( item.el );
         this.items.push( item );
 
