@@ -5,7 +5,10 @@ var createPerson = function( firstName, lastName ){
 
   var person = {
     firstName : firstName,
-    lastName  : lastName
+    lastName  : lastName,
+    sayHi     : function(){
+      return this.greeting;
+    }
   };
 
   Object.defineProperties( person, {
@@ -17,11 +20,6 @@ var createPerson = function( firstName, lastName ){
     fullName : {
       get : function(){
         return this.firstName + ' ' + this.lastName;
-      }
-    },
-    sayHi : {
-      get : function(){
-        return this.greeting;
       },
       configurable : true
     }
@@ -37,26 +35,28 @@ var createFratBoy = function( firstName, lastName, douchebag ){
   fratBoy.douchebag = douchebag;
 
   var fullName         = Object.getOwnPropertyDescriptor( fratBoy, 'fullName' ),
-      fullNameFunction = fullName.get.bind( fratBoy ),
-      sayHi            = Object.getOwnPropertyDescriptor( fratBoy, 'sayHi' ),
-      sayHiFunction    = sayHi.get.bind( fratBoy );
+      fullNameFunction = fullName.get.bind( fratBoy );
 
   Object.defineProperties( fratBoy, {
     greeting : {
       value : 'Wassup dude?',
       configurable : true
     },
-    howLame : {
+    pretension : {
+      value : 'My Dad owns a dealership'
+    },
+    fullName : {
       get : function(){
         return fullNameFunction() + ' is a ' + this.douchebag + ' douchebag.';
       }
-    },
-    sayHi : {
-      get : function(){
-        return sayHiFunction() + ' My name is ' + this.firstName + ' bro.  My dad owns a dealership.';
-      }
     }
   });
+
+  var sayHiFn = fratBoy.sayHi.bind( fratBoy );
+
+  fratBoy.sayHi = function(){
+    return sayHiFn() + ' My name is ' + this.fullName + '. ' + this.pretension + '.';
+  };
 
   return fratBoy;
 };
