@@ -3,12 +3,29 @@
 
 var oojs = (function( oojs ){
 
-  var createItemObject = function( itemText ){
+  var createItem = function( itemHtml ){
 
-    var toolbarItem = $('<button>')
-      .attr('type', 'button')
-      .addClass('btn btn-default tool-bar-item')
-      .html( itemText );
+    var el       = '',
+        itemText = '';
+    // Need to create a new item element
+    if( typeof itemHtml !== 'object' ){
+      
+      if( typeof itemHtml === 'string'){
+
+        itemText = itemHtml;
+
+      }
+
+      el = $('<button>')
+        .attr('type', 'button')
+        .addClass('btn btn-default tool-bar-item')
+        .html( itemText );
+
+    } else {
+
+      el = itemHtml;
+
+    }
 
     var item = {
       toggleActivate : function(){
@@ -18,17 +35,17 @@ var oojs = (function( oojs ){
 
     Object.defineProperties( item, {
       el : {
-        value : toolbarItem
+        value : el
       },
-      enabled : {
+      disabled : {
         get : function(){
-          return this.el.hasClass('btn-primary');
+          return this.el.prop('disabled');
         },
         set : function( value ){
           if( value ){
-            this.el.removeClass('btn-default').addClass('btn-primary');
+            this.el.prop('disabled', true);
           } else {
-            this.el.removeClass('btn-primary').addClass('btn-default');
+            this.el.prop('disabled', false);
           }
         }
       },
@@ -37,7 +54,8 @@ var oojs = (function( oojs ){
           return this.el.hasClass('btn-success');
         },
         set : function( value ){
-          if( value ){
+          if( value && !this.el.prop('disabled') ){
+
             this.el.addClass('btn-success');
           } else {
             this.el.removeClass('btn-success');
@@ -49,59 +67,55 @@ var oojs = (function( oojs ){
     return item;
   };
 
-  var createToolBarItems = function( toolBarItems ){
+  var createToolBarItems = function( toolbarItems ){
 
     var items = [];
 
-    toolBarItems.each(function(){
-      var item = createItemObject( $(this) );
+    toolbarItems.each(function(){
+      var item = createItem( $(this) );
       items.push( item );
     });
+
     return items;
   };
 
-  var createToolBarElement = function( elementId ){
-
-    var toolbar = $('<div>')
-      .attr( 'id', elementId.split('#')[1] ).
-      addClass('btn-group-lg');
-
-    return toolbar;
-  };
-
-
   oojs.createToolBar = function( elementId ){
-    
+
     var toolbarEl = $( elementId );
 
-    if( toolbarEl.length === 0 ){
-
-      toolbarEl = createToolBarElement( elementId );
-
+    //Create Toolbar cause it don't exist
+    if( toolbarEl.length === 0){
+      toolbarEl = $('<div>')
+        .addClass( 'btn-group-lg' )
+        .attr( 'id', elementId.split('#')[1] );
     }
 
+    //Get all items if toolbar got some
     var toolbarItems = toolbarEl.children('.tool-bar-item');
 
     var toolbar = {
 
-      appendTo  : function( domSpot ){
+      //Appends toolbar to the DOM
+      appendTo : function( domSpot ){
         this.el.appendTo( domSpot );
       },
-
+      // Adds another toolbar item
       addItem : function( itemText ){
-        var newItemObj = createItemObject( itemText );
 
-        this.el.append( newItemObj.el );
-        this.items.push( newItemObj );
+        var item = createItem( itemText );
+        this.el.append( item.el );
+        this.items.push( item );
+
       },
-
+      // Removes a toolbar item
       removeItem : function( index ){
+
         if( index > this.items.length || index < 0 ){
-          throw new Error('That ain\'t no index I ever heard of...');
+          throw new Error('What kinda index is that?');
         }
 
         var item = this.items[ index ];
-        this.items.splice( index, 1);
+        this.items.splice( index, 1 );
         item.el.remove();
 
         item = null;
@@ -109,17 +123,17 @@ var oojs = (function( oojs ){
     };
 
     Object.defineProperties( toolbar, {
+
       el : {
         value: toolbarEl
       },
       items : {
         value : createToolBarItems( toolbarItems ),
-        enumberable : true
+        enumerable : true
       }
     });
 
     return toolbar;
   };
-
   return oojs;
 }( oojs || {} ) );
