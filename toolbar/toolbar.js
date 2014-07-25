@@ -3,11 +3,14 @@
 
 var oojs = (function( oojs ){
 
-  var createItem = function( options ){
+  var ToolbarItem = function( options ){
 
     var el = '';
 
-    // Need to create a new item element
+    if( typeof options === 'undefined' ){
+      options = {};
+    }
+
     if( typeof options.html !== 'object' ){
 
       el = $('<button>')
@@ -21,52 +24,51 @@ var oojs = (function( oojs ){
 
     }
 
-    var item = {
-      toggleActivate : function(){
+    Object.defineProperty( this, 'el', {
+      value : el
+    });
+  };
+
+  Object.defineProperties( ToolbarItem.prototype, {
+    
+    toggleActivate : {
+      value : function(){
         this.activated = !this.activated;
       }
-    };
-
-    Object.defineProperties( item, {
-      el : {
-        value : el
+    },
+    disabled : {
+      get : function(){
+        return this.el.prop('disabled');
       },
-      disabled : {
-        get : function(){
-          return this.el.prop('disabled');
-        },
-        set : function( value ){
-          if( value ){
-            this.el.prop('disabled', true);
-          } else {
-            this.el.prop('disabled', false);
-          }
-        }
-      },
-      activated : {
-        get : function(){
-          return this.el.hasClass('btn-success');
-        },
-        set : function( value ){
-          if( value && !this.el.prop('disabled') ){
-
-            this.el.addClass('btn-success');
-          } else {
-            this.el.removeClass('btn-success');
-          }
+      set : function( value ){
+        if( value ){
+          this.el.prop('disabled', true);
+        } else {
+          this.el.prop('disabled', false);
         }
       }
-    });
+    },
+    activated : {
+      get : function(){
+        return this.el.hasClass('btn-success');
+      },
+      set : function( value ){
+        if( value && !this.el.prop('disabled') ){
 
-    return item;
-  };
+          this.el.addClass('btn-success');
+        } else {
+          this.el.removeClass('btn-success');
+        }
+      }
+    }
+  });
 
   var createToolBarItems = function( toolbarItems ){
 
     var items = [];
 
     toolbarItems.each(function(){
-      var item = createItem( { html : $(this) } );
+      var item = new ToolbarItem( { html : $(this) } );
       items.push( item );
     });
 
@@ -96,7 +98,7 @@ var oojs = (function( oojs ){
       // Adds another toolbar item
       addItem : function( options ){
 
-        var item = createItem( options );
+        var item = new ToolbarItem( options );
         this.el.append( item.el );
         this.items.push( item );
 
