@@ -3,6 +3,7 @@
 
 var oojs = (function( oojs ){
 
+  // Toolbaritem Constructor Function
   var ToolbarItem = function( options ){
 
     var el = '';
@@ -29,6 +30,7 @@ var oojs = (function( oojs ){
     });
   };
 
+  // Toolbar Items methods.
   Object.defineProperties( ToolbarItem.prototype, {
     
     toggleActivate : {
@@ -63,6 +65,7 @@ var oojs = (function( oojs ){
     }
   });
 
+  // Toolbar Helper function.  Creates toolbaritem objects for each item passed.
   var createToolBarItems = function( toolbarItems ){
 
     var items = [];
@@ -75,6 +78,62 @@ var oojs = (function( oojs ){
     return items;
   };
 
+  // Toolbar Constructor function
+  var Toolbar = function( elementId ){
+    
+    var toolbarItems = elementId.children('.tool-bar-item');
+
+    Object.defineProperties( this, {
+
+      el : {
+        value: elementId
+      },
+      items : {
+        value : createToolBarItems( toolbarItems ),
+        enumerable : true
+      }
+    });
+  };
+
+  // Toolbar Methods
+  Object.defineProperties( Toolbar.prototype, {
+    
+    appendTo : {
+      
+      value : function( domSpot ){
+        this.el.appendTo( domSpot );
+      },
+      enumerable: true
+    },
+
+    addItem : {
+
+      value : function( options ){
+        var item = new ToolbarItem( options );
+        this.el.append( item.el );
+        this.items.push( item );
+      },
+      enumerable: true
+    },
+
+    removeItem : {
+
+      value : function( index ){
+
+        if( index > this.items.length || index < 0 ){
+          throw new Error('What kinda index is that?');
+        }
+
+        var item = this.items[ index ];
+        this.items.splice( index, 1 );
+        item.el.remove();
+
+        item = null;
+      },
+      enumerable: true
+    }
+  });
+
   oojs.createToolBar = function( elementId ){
 
     var toolbarEl = $( elementId );
@@ -86,50 +145,10 @@ var oojs = (function( oojs ){
         .attr( 'id', elementId.split('#')[1] );
     }
 
-    //Get all items if toolbar got some
-    var toolbarItems = toolbarEl.children('.tool-bar-item');
-
-    var toolbar = {
-
-      //Appends toolbar to the DOM
-      appendTo : function( domSpot ){
-        this.el.appendTo( domSpot );
-      },
-      // Adds another toolbar item
-      addItem : function( options ){
-
-        var item = new ToolbarItem( options );
-        this.el.append( item.el );
-        this.items.push( item );
-
-      },
-      // Removes a toolbar item
-      removeItem : function( index ){
-
-        if( index > this.items.length || index < 0 ){
-          throw new Error('What kinda index is that?');
-        }
-
-        var item = this.items[ index ];
-        this.items.splice( index, 1 );
-        item.el.remove();
-
-        item = null;
-      }
-    };
-
-    Object.defineProperties( toolbar, {
-
-      el : {
-        value: toolbarEl
-      },
-      items : {
-        value : createToolBarItems( toolbarItems ),
-        enumerable : true
-      }
-    });
-
-    return toolbar;
+    return new Toolbar( toolbarEl );
+ 
   };
+
   return oojs;
+
 }( oojs || {} ) );
